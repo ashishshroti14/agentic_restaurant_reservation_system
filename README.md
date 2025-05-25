@@ -74,7 +74,7 @@ The Streamlit-based UI provides an intuitive user experience:
 - **Interactive Map**: Geographic visualization of restaurant locations
 - **Reservation Management**: Easy viewing and management of bookings
 
-![![alt text](./image.png)]()
+![image.png](https://github.com/ashishshroti14/agentic_restaurant_reservation_system/blob/35c11a485bb3d958635995e58f08913ba6a4ffbf/image.png)
 
 ## 🛠️ Technical Architecture
 
