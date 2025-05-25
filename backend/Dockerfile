@@ -11,13 +11,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create data directory for SQLite database
-RUN mkdir -p data
-RUN mkdir -p logs
+# Set PORT environment variable to 8080 for Cloud Run
+ENV PORT=8080
 
-# Expose port for the API
-EXPOSE 8000
+# Create a startup script that uses the PORT environment variable
+RUN echo '#!/bin/bash\n\
+uvicorn main:app --host 0.0.0.0 --port $PORT\n'\
+> /app/start.sh && chmod +x /app/start.sh
+
+# Expose the port
+EXPOSE $PORT
 
 # Command to run the application
 # Using app.main:app as the application import path with Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/start.sh"]
