@@ -20,7 +20,7 @@ CHAT_API_ENDPOINT = f"{API_BASE_URL}/chat/message"
 AUTH_SEND_OTP_ENDPOINT = f"{API_BASE_URL}/auth/send-otp"
 AUTH_VERIFY_OTP_ENDPOINT = f"{API_BASE_URL}/auth/verify-otp"
 RESTAURANTS_API_ENDPOINT = f"{API_BASE_URL}/restaurants"
-RESERVATIONS_API_ENDPOINT = f"{API_BASE_URL}/get-reservations"
+RESERVATIONS_API_ENDPOINT = f"{API_BASE_URL}/get-reservations/"
 
 # Development mode flag - controls visibility of debug elements
 DEV_MODE = os.getenv("DEV_MODE", "False").lower() == "true"
