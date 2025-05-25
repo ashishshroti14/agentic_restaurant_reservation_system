@@ -6,7 +6,7 @@ from pathlib import Path
 # Add the backend directory to the path so we can import from app
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from app.db.database import add_restaurant, get_restaurant
+from db.database import add_restaurant, get_restaurant
 
 # Sample restaurants data
 restaurants = [

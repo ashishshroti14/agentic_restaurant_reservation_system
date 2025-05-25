@@ -11,10 +11,9 @@ import jwt  # Add this import for JWT handling
 
 # Create the database directory if it doesn't exist
 db_dir = Path(__file__).parent.parent.parent / "data"
-db_dir.mkdir(exist_ok=True)
 
 # Database file path
-DB_PATH = db_dir / "foodiespot.db"
+DB_PATH = str(db_dir / "foodiespot.db")
 
 # JWT Configuration
 JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key-change-in-production")

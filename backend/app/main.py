@@ -7,6 +7,9 @@ from .routers.restaurants import router as restaurant_router
 from .routers.reservation_router import router as reservation_router
 from .routers.auth_router import router as auth_router
 from .routers.chat_router import router as chat_router
+from populate_restaurants import main
+
+main()  # Populate the database with initial restaurant data
 
 # Configure logging for the entire application
 logging.basicConfig(
