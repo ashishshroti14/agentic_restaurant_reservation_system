@@ -16,7 +16,7 @@ ENV PORT=8080
 
 # Create a startup script that uses the PORT environment variable
 RUN echo '#!/bin/bash\n\
-uvicorn main:app --host 0.0.0.0 --port $PORT\n'\
+uvicorn app.main:app --host 0.0.0.0 --port $PORT\n'\
 > /app/start.sh && chmod +x /app/start.sh
 
 # Expose the port
