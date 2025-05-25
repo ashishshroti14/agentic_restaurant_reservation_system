@@ -7,8 +7,8 @@ from pathlib import Path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from db.database import add_restaurant, get_restaurant
+import uuid
 
-# Sample restaurants data
 restaurants = [
     {
         "id": str(uuid.uuid4()),
@@ -24,7 +24,8 @@ restaurants = [
         "email": "info@spiceroute.com",
         "phone": "+91-124-456-7890",
         "website": "https://spiceroute.example.com",
-        "address": "DLF Phase 2, Cyber City, Gurgaon"
+        "address": "DLF Phase 2, Cyber City, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -40,7 +41,8 @@ restaurants = [
         "email": "contact@saravanabhavan.com",
         "phone": "+91-44-2834-5678",
         "website": "https://saravanabhavan.example.com",
-        "address": "Usman Road, T. Nagar, Chennai"
+        "address": "Usman Road, T. Nagar, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -56,7 +58,8 @@ restaurants = [
         "email": "hello@toit.in",
         "phone": "+91-80-4112-3456",
         "website": "https://toit.example.com",
-        "address": "100 Feet Road, Indiranagar, Bengaluru"
+        "address": "100 Feet Road, Indiranagar, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -72,7 +75,8 @@ restaurants = [
         "email": "info@germanbakery.com",
         "phone": "+91-20-2613-4567",
         "website": "https://germanbakery.example.com",
-        "address": "North Main Road, Koregaon Park, Pune"
+        "address": "North Main Road, Koregaon Park, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -88,7 +92,8 @@ restaurants = [
         "email": "orders@paradisebiryani.com",
         "phone": "+91-40-2784-5678",
         "website": "https://paradisebiryani.example.com",
-        "address": "MG Road, Secunderabad, Hyderabad"
+        "address": "MG Road, Secunderabad, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -104,7 +109,8 @@ restaurants = [
         "email": "reservations@trishna.com",
         "phone": "+91-22-2270-3213",
         "website": "https://trishna.example.com",
-        "address": "Sai Baba Street, Fort, Mumbai"
+        "address": "Sai Baba Street, Fort, Mumbai",
+        "city": "Mumbai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -120,7 +126,8 @@ restaurants = [
         "email": "gurgaon@farzicafe.com",
         "phone": "+91-124-467-8901",
         "website": "https://farzicafe.example.com",
-        "address": "DLF Mall of India, Sector 18, Gurgaon"
+        "address": "DLF Mall of India, Sector 18, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -136,7 +143,8 @@ restaurants = [
         "email": "dakshin@expressavenue.com",
         "phone": "+91-44-2857-9012",
         "website": "https://dakshin.example.com",
-        "address": "Express Avenue Mall, Royapettah, Chennai"
+        "address": "Express Avenue Mall, Royapettah, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -152,7 +160,8 @@ restaurants = [
         "email": "info@koshys.com",
         "phone": "+91-80-2221-3456",
         "website": "https://koshys.example.com",
-        "address": "St. Marks Road, Bengaluru"
+        "address": "St. Marks Road, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -168,7 +177,8 @@ restaurants = [
         "email": "reservations@malakaspice.com",
         "phone": "+91-20-2615-6789",
         "website": "https://malakaspice.example.com",
-        "address": "Lane 5, Koregaon Park, Pune"
+        "address": "Lane 5, Koregaon Park, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -184,7 +194,8 @@ restaurants = [
         "email": "jiva@ohris.com",
         "phone": "+91-40-2354-7890",
         "website": "https://ohris.example.com",
-        "address": "Road No. 1, Jubilee Hills, Hyderabad"
+        "address": "Road No. 1, Jubilee Hills, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -200,7 +211,8 @@ restaurants = [
         "email": "info@britannia.com",
         "phone": "+91-22-2261-5264",
         "website": "https://britannia.example.com",
-        "address": "Wakefield House, Ballard Estate, Mumbai"
+        "address": "Wakefield House, Ballard Estate, Mumbai",
+        "city": "Mumbai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -216,7 +228,8 @@ restaurants = [
         "email": "sector14@sagarratna.com",
         "phone": "+91-124-234-5678",
         "website": "https://sagarratna.example.com",
-        "address": "City Centre, Sector 14, Gurgaon"
+        "address": "City Centre, Sector 14, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -232,7 +245,8 @@ restaurants = [
         "email": "contact@muruganidli.com",
         "phone": "+91-44-2446-7890",
         "website": "https://muruganidli.example.com",
-        "address": "Besant Nagar, Chennai"
+        "address": "Besant Nagar, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -248,7 +262,8 @@ restaurants = [
         "email": "info@windmillscraftworks.com",
         "phone": "+91-80-4567-8901",
         "website": "https://windmillscraftworks.example.com",
-        "address": "Phoenix MarketCity, Whitefield, Bengaluru"
+        "address": "Phoenix MarketCity, Whitefield, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -264,7 +279,8 @@ restaurants = [
         "email": "reservations@arthurstheme.com",
         "phone": "+91-20-2612-3456",
         "website": "https://arthurstheme.example.com",
-        "address": "Lane 7, Koregaon Park, Pune"
+        "address": "Lane 7, Koregaon Park, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -280,7 +296,8 @@ restaurants = [
         "email": "orders@bawarchi.com",
         "phone": "+91-40-2761-4567",
         "website": "https://bawarchi.example.com",
-        "address": "RTC X Roads, Hyderabad"
+        "address": "RTC X Roads, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -296,7 +313,8 @@ restaurants = [
         "email": "info@maheshlunchhome.com",
         "phone": "+91-22-2287-0938",
         "website": "https://maheshlunchhome.example.com",
-        "address": "Cawasji Patel Street, Fort, Mumbai"
+        "address": "Cawasji Patel Street, Fort, Mumbai",
+        "city": "Mumbai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -312,7 +330,8 @@ restaurants = [
         "email": "gurgaon@barbequenation.com",
         "phone": "+91-124-456-7891",
         "website": "https://barbequenation.example.com",
-        "address": "Leisure Valley, Sector 29, Gurgaon"
+        "address": "Leisure Valley, Sector 29, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -328,7 +347,8 @@ restaurants = [
         "email": "info@ponnusamyhotel.com",
         "phone": "+91-44-2819-2345",
         "website": "https://ponnusamyhotel.example.com",
-        "address": "Egmore High Road, Chennai"
+        "address": "Egmore High Road, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -344,7 +364,8 @@ restaurants = [
         "email": "koramangala@truffles.com",
         "phone": "+91-80-4123-4567",
         "website": "https://truffles.example.com",
-        "address": "Koramangala 5th Block, Bengaluru"
+        "address": "Koramangala 5th Block, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -360,7 +381,8 @@ restaurants = [
         "email": "hinjewadi@shabree.com",
         "phone": "+91-20-6789-0123",
         "website": "https://shabree.example.com",
-        "address": "Rajiv Gandhi Infotech Park, Hinjewadi, Pune"
+        "address": "Rajiv Gandhi Infotech Park, Hinjewadi, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -376,7 +398,8 @@ restaurants = [
         "email": "kondapur@rayalaseemaruchulu.com",
         "phone": "+91-40-4012-3456",
         "website": "https://rayalaseemaruchulu.example.com",
-        "address": "Cyber Towers, Kondapur, Hyderabad"
+        "address": "Cyber Towers, Kondapur, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -392,7 +415,8 @@ restaurants = [
         "email": "bandra@cafemocha.com",
         "phone": "+91-22-2640-5678",
         "website": "https://cafemocha.example.com",
-        "address": "Hill Road, Bandra West, Mumbai"
+        "address": "Hill Road, Bandra West, Mumbai",
+        "city": "Mumbai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -408,7 +432,8 @@ restaurants = [
         "email": "golfcourse@haldirams.com",
         "phone": "+91-124-567-8901",
         "website": "https://haldirams.example.com",
-        "address": "Golf Course Road, Sector 56, Gurgaon"
+        "address": "Golf Course Road, Sector 56, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -424,7 +449,8 @@ restaurants = [
         "email": "annanagar@anjappar.com",
         "phone": "+91-44-2615-7890",
         "website": "https://anjappar.example.com",
-        "address": "2nd Avenue, Anna Nagar, Chennai"
+        "address": "2nd Avenue, Anna Nagar, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -440,7 +466,8 @@ restaurants = [
         "email": "indiranagar@thefattybao.com",
         "phone": "+91-80-4567-8902",
         "website": "https://thefattybao.example.com",
-        "address": "100 Feet Road, Indiranagar, Bengaluru"
+        "address": "100 Feet Road, Indiranagar, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -456,7 +483,8 @@ restaurants = [
         "email": "info@vaishali.com",
         "phone": "+91-20-2543-6789",
         "website": "https://vaishali.example.com",
-        "address": "Fergusson College Road, Pune"
+        "address": "Fergusson College Road, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -472,7 +500,8 @@ restaurants = [
         "email": "orders@shahghouse.com",
         "phone": "+91-40-2313-4567",
         "website": "https://shahghouse.example.com",
-        "address": "Tolichowki, Hyderabad"
+        "address": "Tolichowki, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -488,7 +517,8 @@ restaurants = [
         "email": "info@leopoldcafe.com",
         "phone": "+91-22-2202-0131",
         "website": "https://leopoldcafe.example.com",
-        "address": "Causeway, Colaba, Mumbai"
+        "address": "Causeway, Colaba, Mumbai",
+        "city": "Mumbai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -504,7 +534,8 @@ restaurants = [
         "email": "cyberhub@socialoffline.in",
         "phone": "+91-124-678-9012",
         "website": "https://socialoffline.example.com",
-        "address": "Cyber Hub, DLF Phase 2, Gurgaon"
+        "address": "Cyber Hub, DLF Phase 2, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -520,7 +551,8 @@ restaurants = [
         "email": "reservations@mathsya.com",
         "phone": "+91-44-2491-2345",
         "website": "https://mathsya.example.com",
-        "address": "Elliot's Beach Road, Besant Nagar, Chennai"
+        "address": "Elliot's Beach Road, Besant Nagar, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -536,7 +568,8 @@ restaurants = [
         "email": "ubcity@smokehousedeli.com",
         "phone": "+91-80-2567-8901",
         "website": "https://smokehousedeli.example.com",
-        "address": "UB City Mall, Vittal Mallya Road, Bengaluru"
+        "address": "UB City Mall, Vittal Mallya Road, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -552,7 +585,8 @@ restaurants = [
         "email": "baner@darios.com",
         "phone": "+91-20-2729-3456",
         "website": "https://darios.example.com",
-        "address": "Baner Road, Pune"
+        "address": "Baner Road, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -568,7 +602,8 @@ restaurants = [
         "email": "banjarahills@chutneys.com",
         "phone": "+91-40-2354-6789",
         "website": "https://chutneys.example.com",
-        "address": "Road No. 12, Banjara Hills, Hyderabad"
+        "address": "Road No. 12, Banjara Hills, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -584,7 +619,8 @@ restaurants = [
         "email": "reservations@indigorestaurant.com",
         "phone": "+91-22-6636-8999",
         "website": "https://indigorestaurant.example.com",
-        "address": "Mandlik Marg, Colaba, Mumbai"
+        "address": "Mandlik Marg, Colaba, Mumbai",
+        "city": "Mumbai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -600,7 +636,8 @@ restaurants = [
         "email": "ambience@punjabibynature.com",
         "phone": "+91-124-789-0123",
         "website": "https://punjabibynature.example.com",
-        "address": "Ambience Mall, Vasant Kunj, Gurgaon"
+        "address": "Ambience Mall, Vasant Kunj, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -616,7 +653,8 @@ restaurants = [
         "email": "annasalai@buhari.com",
         "phone": "+91-44-2852-4567",
         "website": "https://buhari.example.com",
-        "address": "Anna Salai, Chennai"
+        "address": "Anna Salai, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -632,7 +670,8 @@ restaurants = [
         "email": "rajajinagar@arborbrewing.com",
         "phone": "+91-80-3456-7890",
         "website": "https://arborbrewing.example.com",
-        "address": "Rajajinagar, Bengaluru"
+        "address": "Rajajinagar, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -648,7 +687,8 @@ restaurants = [
         "email": "info@cafegoodluck.com",
         "phone": "+91-20-2567-1234",
         "website": "https://cafegoodluck.example.com",
-        "address": "Deccan Gymkhana, Pune"
+        "address": "Deccan Gymkhana, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -664,7 +704,8 @@ restaurants = [
         "email": "kingkoti@minervacoffee.com",
         "phone": "+91-40-2323-4567",
         "website": "https://minervacoffee.example.com",
-        "address": "King Koti Road, Hyderabad"
+        "address": "King Koti Road, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -680,7 +721,8 @@ restaurants = [
         "email": "reservations@bastian.in",
         "phone": "+91-22-2600-9999",
         "website": "https://bastian.example.com",
-        "address": "Linking Road, Bandra West, Mumbai"
+        "address": "Linking Road, Bandra West, Mumbai",
+        "city": "Mumbai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -696,7 +738,8 @@ restaurants = [
         "email": "gurgaon@karims.com",
         "phone": "+91-124-890-1234",
         "website": "https://karims.example.com",
-        "address": "Old Delhi Road, Sector 14, Gurgaon"
+        "address": "Old Delhi Road, Sector 14, Gurgaon",
+        "city": "Gurgaon"
     },
     {
         "id": str(uuid.uuid4()),
@@ -712,7 +755,8 @@ restaurants = [
         "email": "tnagar@creamcentre.com",
         "phone": "+91-44-2434-5678",
         "website": "https://creamcentre.example.com",
-        "address": "Pondy Bazaar, T. Nagar, Chennai"
+        "address": "Pondy Bazaar, T. Nagar, Chennai",
+        "city": "Chennai"
     },
     {
         "id": str(uuid.uuid4()),
@@ -728,7 +772,8 @@ restaurants = [
         "email": "indiranagar@monkeybar.in",
         "phone": "+91-80-4890-1234",
         "website": "https://monkeybar.example.com",
-        "address": "100 Feet Road, Indiranagar, Bengaluru"
+        "address": "100 Feet Road, Indiranagar, Bengaluru",
+        "city": "Bengaluru"
     },
     {
         "id": str(uuid.uuid4()),
@@ -744,7 +789,8 @@ restaurants = [
         "email": "info@kayanibakery.com",
         "phone": "+91-20-2633-2525",
         "website": "https://kayanibakery.example.com",
-        "address": "East Street, Camp, Pune"
+        "address": "East Street, Camp, Pune",
+        "city": "Pune"
     },
     {
         "id": str(uuid.uuid4()),
@@ -760,7 +806,8 @@ restaurants = [
         "email": "reservations@jewelofnizam.com",
         "phone": "+91-40-2763-4567",
         "website": "https://jewelofnizam.example.com",
-        "address": "Himayatnagar, Hyderabad"
+        "address": "Himayatnagar, Hyderabad",
+        "city": "Hyderabad"
     },
     {
         "id": str(uuid.uuid4()),
@@ -776,10 +823,10 @@ restaurants = [
         "email": "mahim@soam.com",
         "phone": "+91-22-2444-9999",
         "website": "https://soam.example.com",
-        "address": "Mahim Causeway, Mumbai"
+        "address": "Mahim Causeway, Mumbai",
+        "city": "Mumbai"
     }
 ]
-
 
 def main():
     print("Starting to populate restaurants...")

@@ -5,6 +5,7 @@ class Restaurant(BaseModel):
     id: str
     name: str
     location: str
+    city: str
     cuisine: str
     total_capacity: int
     opening_time: str

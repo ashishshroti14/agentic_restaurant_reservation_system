@@ -96,6 +96,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS restaurants (
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
+            city TEXT NOT NULL,
             location TEXT NOT NULL,
             cuisine TEXT NOT NULL,
             total_capacity INTEGER NOT NULL,
@@ -197,14 +198,15 @@ def add_restaurant(restaurant):
         cursor.execute(
             """
             INSERT INTO restaurants 
-            (id, name, location, cuisine, total_capacity, opening_time, closing_time, 
+            (id, name, location, city, cuisine, total_capacity, opening_time, closing_time, 
             description, latitude, longitude, email, phone, website, address)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 restaurant["id"],
                 restaurant["name"],
                 restaurant["location"],
+                restaurant["city"],
                 restaurant["cuisine"],
                 restaurant["total_capacity"],
                 restaurant["opening_time"],
@@ -230,6 +232,7 @@ def update_restaurant(restaurant):
             UPDATE restaurants SET
             name = ?,
             location = ?,
+            city = ?,
             cuisine = ?,
             total_capacity = ?,
             opening_time = ?,
@@ -246,6 +249,7 @@ def update_restaurant(restaurant):
             (
                 restaurant["name"],
                 restaurant["location"],
+                restaurant["city"],
                 restaurant["cuisine"],
                 restaurant["total_capacity"],
                 restaurant["opening_time"],
