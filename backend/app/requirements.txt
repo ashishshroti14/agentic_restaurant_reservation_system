@@ -35,6 +35,3 @@ twilio>=8.2.0,<9.0.0
 
 # For OpenRouter LLM integration
 openai>=1.0.0,<2.0.0
-
-# For SQLite database
-sqlite3>=3.0.0

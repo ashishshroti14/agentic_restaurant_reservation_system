@@ -26,7 +26,7 @@ OTP_LENGTH = 6
 OTP_EXPIRY_MINUTES = 5
 # Set this to True for testing to always use the same code
 TESTING_MODE = True
-TESTING_OTP = "321918"  # Fixed OTP for testing
+TESTING_OTP = os.getenv("TESTING_OTP", "123456")  # Default testing OTP
 
 # In-memory OTP storage (replace with database in production)
 # Format: {phone_number: (otp, expiry_timestamp)}

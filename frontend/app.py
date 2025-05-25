@@ -5,9 +5,14 @@ import re
 from datetime import datetime
 import time
 import uuid  # Add this import for generating unique IDs
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 # API Configuration
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 CHAT_API_ENDPOINT = f"{API_BASE_URL}/chat/message"
 AUTH_SEND_OTP_ENDPOINT = f"{API_BASE_URL}/auth/send-otp"
 AUTH_VERIFY_OTP_ENDPOINT = f"{API_BASE_URL}/auth/verify-otp"
