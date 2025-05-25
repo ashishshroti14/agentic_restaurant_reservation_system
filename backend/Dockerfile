@@ -22,6 +22,8 @@ uvicorn app.main:app --host 0.0.0.0 --port $PORT\n'\
 # Expose the port
 EXPOSE $PORT
 
+RUN python -m populate_restaurants
+
 # Command to run the application
 # Using app.main:app as the application import path with Uvicorn
 CMD ["/app/start.sh"]

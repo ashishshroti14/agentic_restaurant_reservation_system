@@ -7,6 +7,9 @@ import time
 import uuid  # Add this import for generating unique IDs
 from dotenv import load_dotenv
 import os
+import pandas as pd  # Add pandas for dataframe manipulation for the map
+import folium  # Add folium for better map customization
+from streamlit_folium import folium_static  # Add this to display folium maps in Streamlit
 
 # Load environment variables
 load_dotenv()
@@ -18,6 +21,9 @@ AUTH_SEND_OTP_ENDPOINT = f"{API_BASE_URL}/auth/send-otp"
 AUTH_VERIFY_OTP_ENDPOINT = f"{API_BASE_URL}/auth/verify-otp"
 RESTAURANTS_API_ENDPOINT = f"{API_BASE_URL}/restaurants"
 RESERVATIONS_API_ENDPOINT = f"{API_BASE_URL}/get-reservations"
+
+# Development mode flag - controls visibility of debug elements
+DEV_MODE = os.getenv("DEV_MODE", "False").lower() == "true"
 
 # Initialize http_session in session state
 if "http_session" not in st.session_state:
@@ -32,6 +38,7 @@ if "http_session" not in st.session_state:
         st.session_state.http_session.headers.update({
             "Authorization": f"Bearer {st.session_state.access_token}"
         })
+    
 
 # Helper functions for rendering cards
 # Initialize a counter in session state for unique keys
@@ -220,6 +227,8 @@ def render_restaurant_card(restaurant, index=None, context="default"):
                 use_container_width=True
             ):
                 pass  # Button action handled by callback
+        # if DEV_MODE:
+        print("Access token set in session state:", st.session_state.get("access_token", "None"))
         
         st.markdown("---")
 
@@ -387,7 +396,7 @@ st.set_page_config(
     layout="wide"  # Changed from "centered" to "wide" to support right sidebar
 )
 
-# Add custom CSS to make the sidebar wider (approximately half the screen)
+# Add custom CSS to make the sidebar wider and create sticky map
 st.markdown("""
 <style>
     [data-testid="stSidebar"] {
@@ -443,6 +452,34 @@ st.markdown("""
     .restaurant-card p, .selected-restaurant p {
         margin: 8px 0;
         color: #34495E;
+    }
+    
+    /* Add scrollable container style */
+    .scrollable-container {
+        height: 600px;
+        overflow-y: auto;
+        padding-right: 10px;
+        border-radius: 5px;
+    }
+    
+    /* Make the map column sticky when scrolling */
+    .sticky-map {
+        position: sticky;
+        top: 0;
+        height: calc(100vh - 100px);
+        overflow-y: hidden;
+        z-index: 1;
+        padding-bottom: 1rem;
+    }
+    
+    /* Make sure the map container stays fixed */
+    .sticky-map .element-container {
+        height: calc(100vh - 180px);
+    }
+    
+    /* Ensure map is visible in the sticky container */
+    .sticky-map iframe {
+        height: 100% !important;
     }
 </style>
 
@@ -535,6 +572,7 @@ def verify_otp(phone_number, otp):
             # Store access token directly in session state
             if "access_token" in data:
                 st.session_state.access_token = data["access_token"]
+                print(f"Access token set in session state: {st.session_state.access_token}")
                 
                 # Set the token for all future requests in this session
                 st.session_state.http_session.headers.update({
@@ -644,21 +682,43 @@ def fetch_user_reservations():
         st.error(error_msg)
         return [], False
 
-# Add debug section to sidebar
+# Add debug section to sidebar - only in dev mode
 with st.sidebar:
-    with st.expander("Debug Info"):
-        st.write("Authentication State:", st.session_state.auth_state)
-        st.write("Session ID:", st.session_state.session_id)
-        st.write("Has access token:", st.session_state.access_token is not None)
-        st.write("HTTP Session headers:", dict(st.session_state.http_session.headers))
-        
-        if st.button("Clear All Session Data"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
+    if DEV_MODE:
+        with st.expander("Debug Info"):
+            st.write("Authentication State:", st.session_state.auth_state)
+            st.write("Session ID:", st.session_state.session_id)
+            st.write("Has access token:", st.session_state.access_token is not None)
+            st.write("HTTP Session headers:", dict(st.session_state.http_session.headers))
+            
+            if st.button("Clear All Session Data"):
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.rerun()
 
 # Header
 st.title("🍽️ FoodieSpot Assistant")
+
+# Add a simple navbar when authenticated
+if st.session_state.auth_state == "authenticated":
+    # Create a simple navbar with columns
+    nav_col1, nav_col2, nav_col3 = st.columns([1, 2, 1])
+    
+    with nav_col3:
+        # Right-aligned logout button
+        if st.button("🚪 Logout", key="navbar_logout"):
+            # Clear session state properly
+            st.session_state.auth_state = "not_authenticated"
+            st.session_state.user_data = None
+            st.session_state.access_token = None
+            st.session_state.chat_history = []
+            st.session_state.session_id = None
+            
+            # Clear authorization header
+            if "Authorization" in st.session_state.http_session.headers:
+                del st.session_state.http_session.headers["Authorization"]
+            
+            st.rerun()
 
 # Authentication UI
 if st.session_state.auth_state == "not_authenticated":
@@ -754,11 +814,56 @@ elif st.session_state.auth_state == "authenticated":
                         st.markdown(f"**👤 You:** {message['content']}")
                     else:
                         st.markdown(f"**🤖 Assistant:** {message['content']}")
-                        # Add agent for debugging
+                        # Add agent for debugging - only in dev mode
                         st.markdown(f"<small><i>Agent: {message.get('agent', 'unknown')}</i></small>", unsafe_allow_html=True)
 
-            # Display count of suggested actions for debugging - Fix TypeError
-            if st.session_state.chat_history:
+            suggested_actions = []
+            agent = message.get('agent', 'unknown')
+            if agent == 'reservation_creator':
+                suggested_actions = [
+                    "Create a new reservation",
+                    "View existing reservations",
+                    "Cancel a reservation"
+                ]
+            elif agent == 'restaurant_finder':
+                suggested_actions = [
+                    "Find Italian restaurants",
+                    "Check restaurants in Downtown",
+                    "Make a reservation for tonight"
+                ]
+            elif agent == 'reservation_modifier':
+                suggested_actions = [
+                    "Modify an existing reservation",
+                    "Change the reservation time",
+                    "Update the number of guests"
+                ]
+            elif agent == 'reservation_retriever':
+                suggested_actions = [
+                    "View my reservations",
+                    "Check reservation status",
+                    "Cancel a reservation"
+                ]
+            elif agent == 'availability_checker':
+                suggested_actions = [
+                    "Check table availability",
+                    "Find available time slots",
+                    "Check if a restaurant is open"
+                ]
+            elif agent == 'general_assistant':
+                suggested_actions = [
+                    "Ask about restaurant hours",
+                    "Get restaurant recommendations",
+                    "Find nearby restaurants"
+                ]
+            else:
+                # Default suggested actions if no specific agent is matched
+                suggested_actions = [
+                    "Find restaurants",
+                    "Make a reservation",
+                    "Check my reservations"
+                ]
+            # Display count of suggested actions for debugging - only in dev mode
+            if DEV_MODE and st.session_state.chat_history:
                 last_message = st.session_state.chat_history[-1]
                 if last_message["role"] == "assistant":
                     # Ensure suggested_actions is never None by providing a default empty list
@@ -774,7 +879,7 @@ elif st.session_state.auth_state == "authenticated":
             if assistant_messages:
                 latest_assistant_message = assistant_messages[-1]
                 # Fix: Ensure suggested_actions is never None
-                suggested_actions = latest_assistant_message.get("suggested_actions", []) or []
+                # suggested_actions = latest_assistant_message.get("suggested_actions", []) or []
                 
                 if suggested_actions:
                     # Create a grid of buttons for suggested actions
@@ -796,18 +901,20 @@ elif st.session_state.auth_state == "authenticated":
             
             st.markdown("---")
         
-        # Message input form in sidebar - make it more prominent
         st.markdown("### 💬 Send a message")
         
-        # ADDED: Debug output for session state values
-        st.write("Debug - Text input value:", st.session_state.get("text_input_value", "None"))
-        st.write("Debug - Button click state:", st.session_state.button_click)
+        # Debug output for session state values - only in dev mode
+        if DEV_MODE:
+            st.write("Debug - Text input value:", st.session_state.get("text_input_value", "None"))
+            st.write("Debug - Button click state:", st.session_state.button_click)
 
         with st.form("sidebar_chat_input_form", clear_on_submit=True):
             # Get the current value from session state - ONLY use text_input_value
             current_value = st.session_state.get("text_input_value", "")
             
-            st.write(f"Debug - Using value in form: {current_value}")
+            # Debug info - only in dev mode
+            if DEV_MODE:
+                st.write(f"Debug - Using value in form: {current_value}")
             
             # Create the text input with the current value
             user_input = st.text_area(
@@ -818,9 +925,18 @@ elif st.session_state.auth_state == "authenticated":
                 height=80  # Make the input box larger
             )
             
-            # Use full-width button with the wider sidebar
-            submit_button = st.form_submit_button("📤 Send", use_container_width=True)
+            # Create a row for the buttons
+            button_cols = st.columns([4, 1])
             
+            # Main send button in the first (wider) column
+            with button_cols[0]:
+                submit_button = st.form_submit_button("📤 Send", use_container_width=True)
+            
+            # New conversation button (smaller) in the second column
+            with button_cols[1]:
+                clear_chat = st.form_submit_button("🗑️", help="Start a new conversation", use_container_width=True)
+            
+            # Handle form submissions
             if submit_button and user_input:
                 # Get hidden IDs if available
                 restaurant_id = st.session_state.get("restaurant_hidden_id")
@@ -852,6 +968,25 @@ elif st.session_state.auth_state == "authenticated":
                 # Force a rerun to update the UI with the new messages
                 st.rerun()
 
+            # Handle new conversation button
+            if clear_chat:
+                st.session_state.chat_history = []
+                st.session_state.session_id = None
+                
+                # Re-add welcome message
+                welcome_message = {
+                    "role": "assistant",
+                    "content": f"👋 Welcome back! I'm your FoodieSpot assistant. How can I help you today?",
+                    "suggested_actions": [
+                        "Find Italian restaurants",
+                        "Check restaurants in Downtown",
+                        "Make a reservation for tonight"
+                    ],
+                    "agent": "greeting"
+                }
+                st.session_state.chat_history.append(welcome_message)
+                st.rerun()
+
     # Main content area - Restaurants and Reservations
     # Adjust column widths to account for the wider sidebar
     st.markdown("## Find and Book Restaurants")
@@ -861,24 +996,161 @@ elif st.session_state.auth_state == "authenticated":
     
     # Top Restaurants section in first tab
     with restaurant_tab:
-        st.subheader("Top Restaurants")
+        # Create two columns for the layout - map on left, list on right
+        map_col, list_col = st.columns([1, 1])
         
-        # Fetch and display top restaurants
-        with st.spinner("Loading restaurants..."):
-            restaurants, success = fetch_top_restaurants(limit=5)  # Reduced limit for better layout
+        # Add the sticky-map class to the map column
+        # map_col.markdown('<div class="sticky-map">', unsafe_allow_html=True)
+        
+        with map_col:
+            st.subheader("Restaurant Locations")
             
-            if success and restaurants:
-                for idx, restaurant in enumerate(restaurants):
-                    render_restaurant_card(restaurant, idx, context="top")
-            elif success:
-                st.info("No restaurants found.")
-            else:
-                st.error("Failed to load restaurants. Please try again later.")
+            # Fetch and display restaurants on a map
+            with st.spinner("Loading map..."):
+                # Get the restaurants data
+                restaurants, success = fetch_top_restaurants(limit=20)  # Get more restaurants for the map
                 
-        # Add a button to view more restaurants - no ID needed here as it's a general query
-        if st.button("View More Restaurants", on_click=on_card_button_click, args=("Show me more restaurants",)):
-            # This code runs after the callback, just in case the callback doesn't trigger rerun
-            pass
+                if success and restaurants:
+                    # Create data for the map
+                    map_data = []
+                    selected_restaurant_data = None
+                    
+                    for restaurant in restaurants:
+                        # Only add restaurants with valid location data
+                        if restaurant.get('latitude') and restaurant.get('longitude'):
+                            restaurant_data = {
+                                'id': restaurant.get('id', ''),
+                                'name': restaurant.get('name', 'Unknown'),
+                                'lat': restaurant.get('latitude'),
+                                'lon': restaurant.get('longitude'),
+                                'location': restaurant.get('location', 'Unknown'),
+                                'cuisine': restaurant.get('cuisine', 'Various'),
+                                'is_selected': restaurant.get('id') == st.session_state.selected_restaurant
+                            }
+                            map_data.append(restaurant_data)
+                            
+                            # Save the selected restaurant data separately for centering the map
+                            if restaurant_data['is_selected']:
+                                selected_restaurant_data = restaurant_data
+                    
+                    if map_data:
+                        # Determine the map center
+                        if selected_restaurant_data:
+                            # Center on selected restaurant
+                            map_center = [selected_restaurant_data['lat'], selected_restaurant_data['lon']]
+                            zoom_start = 14  # Closer zoom when a restaurant is selected
+                        else:
+                            # Center on the average of all coordinates
+                            avg_lat = sum(r['lat'] for r in map_data) / len(map_data)
+                            avg_lon = sum(r['lon'] for r in map_data) / len(map_data)
+                            map_center = [avg_lat, avg_lon]
+                            zoom_start = 12  # Default zoom level
+                        
+                        # Create a folium map
+                        m = folium.Map(location=map_center, zoom_start=zoom_start)
+                        
+                        # Add markers for each restaurant
+                        for r in map_data:
+                            # Create popup content with HTML
+                            popup_html = f"""
+                            <div style="width:200px">
+                                <h4>{r['name']}</h4>
+                                <p><b>Cuisine:</b> {r['cuisine']}</p>
+                                <p><b>Location:</b> {r['location']}</p>
+                            </div>
+                            """
+                            
+                            # Create a popup with the HTML content
+                            popup = folium.Popup(popup_html, max_width=300)
+                            
+                            if r['is_selected']:
+                                # Special marker for selected restaurant
+                                folium.Marker(
+                                    location=[r['lat'], r['lon']],
+                                    popup=popup,
+                                    tooltip=r['name'],
+                                    icon=folium.Icon(color='red', icon='star', prefix='fa'),
+                                ).add_to(m)
+                                
+                                # Add a circle to highlight the selected restaurant
+                                folium.Circle(
+                                    location=[r['lat'], r['lon']],
+                                    radius=50,
+                                    color='red',
+                                    fill=True,
+                                    fill_color='red',
+                                    fill_opacity=0.2
+                                ).add_to(m)
+                            else:
+                                # Standard marker for other restaurants
+                                folium.Marker(
+                                    location=[r['lat'], r['lon']],
+                                    popup=popup,
+                                    tooltip=r['name'],
+                                    icon=folium.Icon(color='blue', icon='utensils', prefix='fa'),
+                                ).add_to(m)
+                        
+                        # Display the folium map in Streamlit
+                        folium_static(m)
+                        
+                        # Display a legend or list below the map
+                        with st.expander("Restaurants on Map", expanded=False):
+                            for i, r in enumerate(map_data):
+                                if r['is_selected']:
+                                    st.markdown(f"{i+1}. **{r['name']} 🌟** - {r['location']}")
+                                else:
+                                    st.write(f"{i+1}. **{r['name']}** - {r['location']}")
+                    else:
+                        st.info("No restaurants with location data available to display on map.")
+                elif success:
+                    st.info("No restaurants found to display on map.")
+                else:
+                    st.error("Failed to load restaurant locations. Please try again later.")
+        
+        # Close the sticky map container
+        map_col.markdown('</div>', unsafe_allow_html=True)
+        
+        with list_col:
+            st.subheader("Top Restaurants")
+            
+            # Create a container specifically for the restaurant list
+            restaurant_list = st.container()
+            
+            # Apply CSS to create a scrollable area specifically for this container
+            st.markdown("""
+            <style>
+            /* Target the restaurant list container to make it scrollable */
+            section:has(div.element-container:has(div.stMarkdown h3:contains("Top Restaurants"))) > div:nth-child(3) {
+                max-height: 600px;
+                overflow-y: auto !important;
+                overflow-x: hidden;
+                padding-right: 10px;
+                margin-bottom: 15px;
+                border-radius: 5px;
+                border: 1px solid #f0f0f0;
+                background-color: rgba(255, 255, 255, 0.5);
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # Put the restaurant cards inside the container to make them scrollable
+            with restaurant_list:
+                # Fetch and display top restaurants
+                with st.spinner("Loading restaurants..."):
+                    # We've already fetched restaurants for the map, so let's use them if available
+                    if 'restaurants' in locals() and restaurants and success:
+                        for idx, restaurant in enumerate(restaurants):  # Show all restaurants in scrollable list
+                            render_restaurant_card(restaurant, idx, context="top")
+                    else:
+                        # If we don't have the data already, fetch it
+                        restaurants, success = fetch_top_restaurants(limit=15)  # Increased limit for scrolling
+                        if success and restaurants:
+                            for idx, restaurant in enumerate(restaurants):
+                                render_restaurant_card(restaurant, idx, context="top")
+                        elif success:
+                            st.info("No restaurants found.")
+                        else:
+                            st.error("Failed to load restaurants. Please try again later.")
     
     # My Reservations section in second tab
     with reservation_tab:
@@ -905,10 +1177,10 @@ elif st.session_state.auth_state == "authenticated":
             # This code runs after the callback, just in case the callback doesn't trigger rerun
             pass
     
-    # Right sidebar for details (using a container with Streamlit elements)
     # Create a new column all the way to the right for our custom "right sidebar"
     _, right_area = st.columns([2, 1])
     
+    # Right sidebar for details
     with right_area:
         st.markdown("### FoodieSpot Details")
         
@@ -928,132 +1200,103 @@ elif st.session_state.auth_state == "authenticated":
             else:
                 st.write("User information not available.")
         
-        # Enhanced State Variables Section
-        with st.expander("State Variables", expanded=True):
-            # Add tabs for different categories of state variables
-            state_tabs = st.tabs(["IDs & Selection", "Authentication", "Chat", "All Variables"])
-            
-            with state_tabs[0]:
-                # ID and selection variables
-                st.subheader("ID & Selection Variables")
-                id_vars = {
-                    "Selected Restaurant": st.session_state.selected_restaurant,
-                    "Selected Reservation": st.session_state.selected_reservation,
-                    "Restaurant Hidden ID": st.session_state.restaurant_hidden_id,
-                    "Reservation Hidden ID": st.session_state.reservation_hidden_id,
-                    "Generic Hidden ID": st.session_state.hidden_id
-                }
+        # Enhanced State Variables Section - only in dev mode
+        if DEV_MODE:
+            with st.expander("State Variables", expanded=True):
+                # Add tabs for different categories of state variables
+                state_tabs = st.tabs(["IDs & Selection", "Authentication", "Chat", "All Variables"])
                 
-                # Display in a more readable format
-                for key, value in id_vars.items():
-                    st.write(f"**{key}:** {value if value is not None else 'None'}")
-            
-            with state_tabs[1]:
-                # Authentication variables
-                st.subheader("Authentication Variables")
-                auth_vars = {
-                    "Auth State": st.session_state.auth_state,
-                    "Phone Number": st.session_state.phone_number,
-                    "Access Token Present": st.session_state.access_token is not None,
-                    "Session ID": st.session_state.session_id
-                }
-                
-                for key, value in auth_vars.items():
-                    st.write(f"**{key}:** {value}")
-            
-            with state_tabs[2]:
-                # Chat variables
-                st.subheader("Chat Variables")
-                chat_vars = {
-                    "Text Input Value": st.session_state.text_input_value,
-                    "Chat History Length": len(st.session_state.chat_history),
-                    "Button Click State": st.session_state.button_click
-                }
-                
-                for key, value in chat_vars.items():
-                    st.write(f"**{key}:** {value}")
-            
-            with state_tabs[3]:
-                # All session state variables
-                st.subheader("All Session State Variables")
-                
-                # Add a search filter
-                search_term = st.text_input("Filter variables:", placeholder="Enter variable name...")
-                
-                # Filter and display all session state variables
-                filtered_vars = {k: v for k, v in st.session_state.items() 
-                                if not search_term or search_term.lower() in k.lower()}
-                
-                # Show count of variables
-                st.write(f"Showing {len(filtered_vars)} of {len(st.session_state)} variables")
-                
-                # Create a clean table view
-                if filtered_vars:
-                    data = []
-                    for k, v in filtered_vars.items():
-                        # Handle different types of values for display
-                        if isinstance(v, (dict, list)):
-                            val = f"{type(v).__name__} with {len(v)} items"
-                        elif isinstance(v, str) and len(v) > 50:
-                            val = f"{v[:50]}..."
-                        else:
-                            val = str(v)
-                        
-                        data.append({"Variable": k, "Value": val, "Type": type(v).__name__})
+                with state_tabs[0]:
+                    # ID and selection variables
+                    st.subheader("ID & Selection Variables")
+                    id_vars = {
+                        "Selected Restaurant": st.session_state.selected_restaurant,
+                        "Selected Reservation": st.session_state.selected_reservation,
+                        "Restaurant Hidden ID": st.session_state.restaurant_hidden_id,
+                        "Reservation Hidden ID": st.session_state.reservation_hidden_id,
+                        "Generic Hidden ID": st.session_state.hidden_id
+                    }
                     
-                    # Display as a dataframe for better readability
-                    st.dataframe(data, use_container_width=True)
-                else:
-                    st.info("No variables match your filter.")
+                    # Display in a more readable format
+                    for key, value in id_vars.items():
+                        st.write(f"**{key}:** {value if value is not None else 'None'}")
+                
+                with state_tabs[1]:
+                    # Authentication variables
+                    st.subheader("Authentication Variables")
+                    auth_vars = {
+                        "Auth State": st.session_state.auth_state,
+                        "Phone Number": st.session_state.phone_number,
+                        "Access Token Present": st.session_state.access_token is not None,
+                        "Session ID": st.session_state.session_id
+                    }
+                    
+                    for key, value in auth_vars.items():
+                        st.write(f"**{key}:** {value}")
+                
+                with state_tabs[2]:
+                    # Chat variables
+                    st.subheader("Chat Variables")
+                    chat_vars = {
+                        "Text Input Value": st.session_state.text_input_value,
+                        "Chat History Length": len(st.session_state.chat_history),
+                        "Button Click State": st.session_state.button_click
+                    }
+                    
+                    for key, value in chat_vars.items():
+                        st.write(f"**{key}:** {value}")
+                
+                with state_tabs[3]:
+                    # All session state variables
+                    st.subheader("All Session State Variables")
+                    
+                    # Add a search filter
+                    search_term = st.text_input("Filter variables:", placeholder="Enter variable name...")
+                    
+                    # Filter and display all session state variables
+                    filtered_vars = {k: v for k, v in st.session_state.items() 
+                                    if not search_term or search_term.lower() in k.lower()}
+                    
+                    # Show count of variables
+                    st.write(f"Showing {len(filtered_vars)} of {len(st.session_state)} variables")
+                    
+                    # Create a clean table view
+                    if filtered_vars:
+                        data = []
+                        for k, v in filtered_vars.items():
+                            # Handle different types of values for display
+                            if isinstance(v, (dict, list)):
+                                val = f"{type(v).__name__} with {len(v)} items"
+                            elif isinstance(v, str) and len(v) > 50:
+                                val = f"{v[:50]}..."
+                            else:
+                                val = str(v)
+                        
+                            data.append({"Variable": k, "Value": val, "Type": type(v).__name__})
+                        
+                        # Display as a dataframe for better readability
+                        st.dataframe(data, use_container_width=True)
+                    else:
+                        st.info("No variables match your filter.")
         
-        # Debug Info in collapsible section (keep existing functionality too)
-        with st.expander("Debug Actions", expanded=False):
-            st.write("Authentication State:", st.session_state.auth_state)
-            st.write("Session ID:", st.session_state.session_id)
-            st.write("Has access token:", st.session_state.access_token is not None)
-            st.write("Restaurant ID:", st.session_state.restaurant_hidden_id)
-            st.write("Reservation ID:", st.session_state.reservation_hidden_id)
-            
-            if st.button("Clear All Session Data", key="right_sidebar_clear"):
-                for key in list(st.session_state.keys()):
-                    del st.session_state[key]
-                st.rerun()
+        # Debug Info in collapsible section - only in dev mode
+        if DEV_MODE:
+            with st.expander("Debug Actions", expanded=False):
+                st.write("Authentication State:", st.session_state.auth_state)
+                st.write("Session ID:", st.session_state.session_id)
+                st.write("Has access token:", st.session_state.access_token is not None)
+                st.write("Restaurant ID:", st.session_state.restaurant_hidden_id)
+                st.write("Reservation ID:", st.session_state.reservation_hidden_id)
+                
+                if st.button("Clear All Session Data", key="right_sidebar_clear"):
+                    for key in list(st.session_state.keys()):
+                        del st.session_state[key]
+                    st.rerun()
         
-        # Session actions
-        st.markdown("### Actions")
-        
-        # Add buttons for common actions
-        if st.button("Start New Conversation", key="right_sidebar_new_convo"):
-            st.session_state.chat_history = []
-            st.session_state.session_id = None
-            
-            # Re-add welcome message
-            welcome_message = {
-                "role": "assistant",
-                "content": f"👋 Welcome back! I'm your FoodieSpot assistant. How can I help you today?",
-                "suggested_actions": [
-                    "Find Italian restaurants",
-                    "Check restaurants in Downtown",
-                    "Make a reservation for tonight"
-                ],
-                "agent": "greeting"
-            }
-            st.session_state.chat_history.append(welcome_message)
-            st.rerun()
-        
-        if st.button("Logout", key="right_sidebar_logout"):
-            # Clear session state properly
-            st.session_state.auth_state = "not_authenticated"
-            st.session_state.user_data = None
-            st.session_state.access_token = None
-            st.session_state.chat_history = []
-            st.session_state.session_id = None
-            
-            # Clear authorization header
-            if "Authorization" in st.session_state.http_session.headers:
-                del st.session_state.http_session.headers["Authorization"]
-            
-            st.rerun()
+        # Session actions - Removed the buttons that were moved elsewhere
+        st.markdown("### App Information")
+        st.write("FoodieSpot helps you discover and book restaurants easily.")
+        st.write("Use the chat assistant to find restaurants, check availability, and make reservations.")
 
 # Check if a button was clicked and handle it
 if st.session_state.button_click["clicked"]:
