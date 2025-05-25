@@ -13,5 +13,4 @@ htmlcov/
 .venv
 venv/
 ENV/
-data/
 logs/
