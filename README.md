@@ -74,7 +74,7 @@ The Streamlit-based UI provides an intuitive user experience:
 - **Interactive Map**: Geographic visualization of restaurant locations
 - **Reservation Management**: Easy viewing and management of bookings
 
-![![alt text](image.png)]()
+![![alt text](./image.png)]()
 
 ## 🛠️ Technical Architecture
 
