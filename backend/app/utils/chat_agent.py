@@ -18,7 +18,6 @@ load_dotenv()
 
 # OpenRouter API configuration
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-print(f"OPENROUTER_API_KEY: {OPENROUTER_API_KEY}")
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
 DEFAULT_MODEL = "microsoft/phi-4"
 
@@ -172,9 +171,12 @@ def detect_agent(message: str, session: Optional[ChatSession] = None) -> str:
         # Create a comprehensive prompt for agent classification with full conversation context
         agent_prompt = f"""
         You are analyzing a conversation between a user and FoodieSpot, a restaurant reservation platform assistant.
-        
-        {'No conversation history available.' if not conversation_history else 'CONVERSATION HISTORY:\n' + '\n'.join(conversation_history)}
-        
+
+        {'No conversation history available.' if not conversation_history else f'''CONVERSATION HISTORY:
+
+         {''.join(conversation_history)}
+         '''}
+
         CURRENT USER MESSAGE: "{message}"
         
         Based on the full conversation context, classify which agent should handle this request:
