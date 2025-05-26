@@ -30,28 +30,7 @@ FoodieSpot's AI reservation assistant revolutionizes dining experiences by provi
 6. **Follow-up**: Automated reminders, special offers, and feedback collection post-dining
 
 ## State Transition Diagram
-
-stateDiagram-v2
-[] --> Welcome
-Welcome --> Discovery : User expresses dining intent
-Welcome --> Management : User has existing reservation
-Discovery --> RestaurantSearch : Search by cuisine/location
-RestaurantSearch --> RecommendationReview : Show matching restaurants
-RecommendationReview --> AvailabilityCheck : User selects restaurant
-RecommendationReview --> RestaurantSearch : Refine search criteria
-AvailabilityCheck --> BookingCreation : Time slot available
-AvailabilityCheck --> AlternativeOffers : No availability - suggest alternatives
-AlternativeOffers --> AvailabilityCheck : User selects alternative
-AlternativeOffers --> Discovery : Start new search
-BookingCreation --> BookingConfirmed : Reservation successful
-BookingConfirmed --> [] : Customer satisfied
-Management --> ReservationRetrieval : Find existing reservation
-ReservationRetrieval --> ReservationModification : Modify booking
-ReservationRetrieval --> ReservationCancellation : Cancel booking
-ReservationModification --> BookingConfirmed : Changes successful
-ReservationCancellation --> CancellationConfirmed : Cancellation successful
-CancellationConfirmed --> [*] : Process complete
-BookingConfirmed --> Management : Customer wants to modify again
+   [![](https://mermaid.ink/img/pako:eNqNlEuP0zAQx7-K5SNqSx595oC0dMVtARUQEpSD60wSq45d2U66ZbXffSdJ06ZPyCHKxPP_zXhm7BfKdQw0oktlHXPwKFhqWN4vg6Ui-Px-94f0-x_IT5Bc59D83Bv1wqOwXJdgdiQiPywYAs8bA9aCJbFQQqVEKAfKXSqfmGIp5LjWSjNmUS6sq2QIAVMyJ7RqtM37GK9iLACzLgxT7hswwzMk7T9WO8ILYYWC91LzDuZC0nAwLUwlrh0XUArYVqxMb0nOHM_2Ge2VtkVdUVW4h5IJyVZCCrebZ8DX7Q4tSODOdlD_IF3Z4AIS3BWiapsb4cAI1q3RZfgK9VHrNW5jbqAOgqTvAlthpXaENQoJ9wAPEiMpFJfwJUnAWER81q22diZ9Yos0xaQJO3rbbnLnaXRT0yoRJoe43uWh_YjkHEcqKeQp4uBeMapJjci8sA4HDCuNUpsIiLuxOyO3L24bYwHOCCiZRMYnoeI7c3hVdYZ70rFIBG8LXZs7smry_n_MnCkOUraYxryJOQl6o6zzjClsz0VJbwWtMN0fJ6yu4zmweV-XHtv11ehKRXD6NxIc3OnvyXVxaPO2Oo3EaZI3JWYpE9gn2qOpETGNnCmgR9EzZ5VJX6oIS-oyJC1phJ8xM-slXn-vqNkw9UvrvJUZXaQZjRImLVrFJj5ekAcXPLNg5rpQjkb-bFQzaPRCn2kUBP7An_nhyPdmk1nojYc9uqNRPxhOB2E49UcjbxZO0Wvy2qN_67j-IBx6oRdMvEk4GgdjXHoD4SnsVg?type=png)](https://mermaid.live/edit#pako:eNqNlEuP0zAQx7-K5SNqSx595oC0dMVtARUQEpSD60wSq45d2U66ZbXffSdJ06ZPyCHKxPP_zXhm7BfKdQw0oktlHXPwKFhqWN4vg6Ui-Px-94f0-x_IT5Bc59D83Bv1wqOwXJdgdiQiPywYAs8bA9aCJbFQQqVEKAfKXSqfmGIp5LjWSjNmUS6sq2QIAVMyJ7RqtM37GK9iLACzLgxT7hswwzMk7T9WO8ILYYWC91LzDuZC0nAwLUwlrh0XUArYVqxMb0nOHM_2Ge2VtkVdUVW4h5IJyVZCCrebZ8DX7Q4tSODOdlD_IF3Z4AIS3BWiapsb4cAI1q3RZfgK9VHrNW5jbqAOgqTvAlthpXaENQoJ9wAPEiMpFJfwJUnAWER81q22diZ9Yos0xaQJO3rbbnLnaXRT0yoRJoe43uWh_YjkHEcqKeQp4uBeMapJjci8sA4HDCuNUpsIiLuxOyO3L24bYwHOCCiZRMYnoeI7c3hVdYZ70rFIBG8LXZs7smry_n_MnCkOUraYxryJOQl6o6zzjClsz0VJbwWtMN0fJ6yu4zmweV-XHtv11ehKRXD6NxIc3OnvyXVxaPO2Oo3EaZI3JWYpE9gn2qOpETGNnCmgR9EzZ5VJX6oIS-oyJC1phJ8xM-slXn-vqNkw9UvrvJUZXaQZjRImLVrFJj5ekAcXPLNg5rpQjkb-bFQzaPRCn2kUBP7An_nhyPdmk1nojYc9uqNRPxhOB2E49UcjbxZO0Wvy2qN_67j-IBx6oRdMvEk4GgdjXHoD4SnsVg)
 
 
 
