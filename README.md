@@ -1,4 +1,5 @@
 # FoodieSpot: Agentic Restaurant Reservation System
+Business Strategy available at [Business_strategy.md](Business_strategy.md)
 
 ![FoodieSpot Logo](https://cdn-icons-png.flaticon.com/512/2702/2702391.png)
 
