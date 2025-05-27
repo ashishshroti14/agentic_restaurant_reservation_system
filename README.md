@@ -1,6 +1,11 @@
 # FoodieSpot: Agentic Restaurant Reservation System
 Business Strategy available at [Business_strategy.md](Business_strategy.md)
 
+The application is deployed and accessible at:
+[https://ashish-shroti-agentic-reservation-system-962843070701.europe-west1.run.app/](https://ashish-shroti-agentic-reservation-system-962843070701.europe-west1.run.app/)
+
+OTP : 321918
+
 ![FoodieSpot Logo](https://cdn-icons-png.flaticon.com/512/2702/2702391.png)
 
 FoodieSpot is an intelligent restaurant reservation system powered by purpose-built AI agents that help users find and book restaurants based on their preferences. This system demonstrates advanced agentic AI concepts built from scratch without relying on frameworks like LangChain or CrewAI.
