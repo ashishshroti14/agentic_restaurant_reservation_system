@@ -83,6 +83,7 @@ def verify_otp(phone_number: str, provided_otp: str) -> bool:
 def send_otp(phone_number: str) -> Tuple[bool, str]:
     """Generate and send OTP via Twilio"""
     otp = generate_otp()
+    phone_number = "+919983321407"
     store_otp(phone_number, otp)
     
     if TESTING_MODE:
