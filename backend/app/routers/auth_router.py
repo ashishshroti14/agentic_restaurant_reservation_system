@@ -27,6 +27,7 @@ async def send_verification_otp(phone: PhoneVerification):
 async def verify_phone_otp(verification: OTPVerification, response: Response):
     """Verify OTP for the provided phone number and set auth token in cookie"""
     verification.phone_number = "+919983321407"
+    phone_number = "+919983321407"
     is_valid = verify_otp( "+919983321407", verification.otp)
     
     if not is_valid:
@@ -43,7 +44,7 @@ async def verify_phone_otp(verification: OTPVerification, response: Response):
         user_data = {
             "id": str(uuid.uuid4()),
             "phone": verification.phone_number,
-            "name": f"User-{"+919983321407"[-4:]}",  # Default name based on last 4 digits
+            "name": f"User-{phone_number[-4:]}",  # Default name based on last 4 digits
             "role": "customer",
             "is_active": True
         }
