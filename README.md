@@ -3,7 +3,8 @@ Business Strategy available at [Business_strategy.md](Business_strategy.md)
 
 The application is deployed and accessible at:
 [https://ashish-shroti-agentic-reservation-system-962843070701.europe-west1.run.app/](https://ashish-shroti-agentic-reservation-system-962843070701.europe-west1.run.app/)
-
+Use these credentials:
+Phone Number: +919983321407
 OTP : 321918
 
 ![FoodieSpot Logo](https://cdn-icons-png.flaticon.com/512/2702/2702391.png)
