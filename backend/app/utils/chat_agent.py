@@ -20,6 +20,9 @@ load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL")
+BASE_URL=os.getenv("BASE_URL")
+API_KEY=os.getenv("API_KEY")
+                   
 
 
 # Session storage (replace with database in production)
@@ -164,8 +167,8 @@ def detect_agent(message: str, session: Optional[ChatSession] = None) -> str:
     # Use LLM for agent classification with updated agent categories
     try:
         client = OpenAI(
-            base_url=OPENROUTER_URL,
-            api_key=OPENROUTER_API_KEY,
+            base_url=BASE_URL,
+            api_key=API_KEY,
         )
         
         # Create a comprehensive prompt for agent classification with full conversation context
@@ -1122,3 +1125,4 @@ Give a simple 'true' or 'false' answer.
 
 
     return "true" in response.choices[0].message.content.lower()
+
