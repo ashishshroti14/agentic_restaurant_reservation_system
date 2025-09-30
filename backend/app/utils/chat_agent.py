@@ -19,7 +19,7 @@ load_dotenv()
 # OpenRouter API configuration
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
-DEFAULT_MODEL = "microsoft/phi-4"
+DEFAULT_MODEL = os.getenv("DEFAULT_MODEL")
 
 
 # Session storage (replace with database in production)
@@ -1119,5 +1119,6 @@ Give a simple 'true' or 'false' answer.
             {"role": "user", "content": SYSTEM_PROMPT}
         ]
     )
+
 
     return "true" in response.choices[0].message.content.lower()
