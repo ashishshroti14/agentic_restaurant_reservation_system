@@ -285,7 +285,7 @@ def extract_parameters(message: str, agent: str, session: Optional[ChatSession] 
     # Convert agent to intent for parameter extraction (for backward compatibility)
     intent = AGENT_TO_INTENT_MAP.get(agent, "general_inquiry")
     
-    if not OPENROUTER_API_KEY:
+    if not API_KEY:
         # Return empty params if no API key is available
         return {}
     
@@ -738,7 +738,7 @@ Output: {result}
     
 def generate_response(session: ChatSession, user_message: str, restaurant_id: Optional[str] = None) -> Tuple[str, Optional[List[str]], str]:
     """Generate a response using the model from OpenRouter and return the detected agent"""
-    if not OPENROUTER_API_KEY:
+    if not API_KEY:
         # If no API key, use rule-based responses
         agent = detect_agent(user_message)
         params = extract_parameters(user_message, agent, session)
@@ -1125,5 +1125,6 @@ Give a simple 'true' or 'false' answer.
 
 
     return "true" in response.choices[0].message.content.lower()
+
 
 
