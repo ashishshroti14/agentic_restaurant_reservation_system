@@ -34,4 +34,5 @@ starlette>=0.27.0,<0.28.0
 twilio>=8.2.0,<9.0.0
 
 # For OpenRouter LLM integration
-openai>=1.0.0,<2.0.0
+openai
+
