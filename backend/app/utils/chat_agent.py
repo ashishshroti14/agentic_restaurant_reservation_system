@@ -17,8 +17,8 @@ from .datetime_utils import standardize_object_for_json, json_dumps, to_standard
 load_dotenv()
 
 # OpenRouter API configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_URL = "https://openrouter.ai/api/v1"
+# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# OPENROUTER_URL = "https://openrouter.ai/api/v1"
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL")
 BASE_URL=os.getenv("BASE_URL")
 API_KEY=os.getenv("API_KEY")
@@ -292,8 +292,8 @@ def extract_parameters(message: str, agent: str, session: Optional[ChatSession] 
     try:
         # Initialize OpenAI client here before using it
         client = OpenAI(
-            base_url=OPENROUTER_URL,
-            api_key=OPENROUTER_API_KEY,
+            base_url=BASE_URL,
+            api_key=API_KEY,
         )
         
         # Extract conversation history and system context if session is provided
@@ -912,9 +912,9 @@ COMMON EXAMPLES:
     
     # Initialize client
     client = OpenAI(
-        base_url=OPENROUTER_URL,
-        api_key=OPENROUTER_API_KEY,
-    )
+            base_url=BASE_URL,
+            api_key=API_KEY,
+        )
     
     # Process the conversation with potential multiple tool calls
     max_tool_calls = 5  # Limit the number of sequential tool calls to prevent infinite loops
@@ -1111,9 +1111,9 @@ Give a simple 'true' or 'false' answer.
     """
 
     client = OpenAI(
-        base_url=OPENROUTER_URL,
-        api_key=OPENROUTER_API_KEY,
-    )
+            base_url=BASE_URL,
+            api_key=API_KEY,
+        )
 
 
     response = client.chat.completions.create(
@@ -1125,4 +1125,5 @@ Give a simple 'true' or 'false' answer.
 
 
     return "true" in response.choices[0].message.content.lower()
+
 
