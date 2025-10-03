@@ -104,6 +104,9 @@ def standardize_phone_number(phone: str) -> str:
     """
     if not phone:
         return phone
+
+    if isinstance(phone, int):
+        phone = str(phone)
         
     # Keep the + sign if it exists at the beginning
     has_plus = phone.startswith('+')
