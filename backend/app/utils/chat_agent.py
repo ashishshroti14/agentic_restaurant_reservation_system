@@ -944,14 +944,12 @@ COMMON EXAMPLES:
             print(completion.choices)
             print(f"LLM response: {response_text}")
 
-            if response_text == "" or response_text.isspace():
+            if not response_text or response_text.isspace():
                 # If the response is empty, we can't proceed
                 logger.warning("Received empty response from LLM")
                 empty_response_count += 1
-                # if empty_response_count >= max_empty_responses:
-                #     logger.error("Max empty responses reached, stopping execution")
-                #     break
                 continue
+
 
             # if check_if_llm_has_asked_to_wait(response_text= response_text):
             #     # If the LLM asks to wait, we should pause and not log this as an interaction
@@ -1125,6 +1123,7 @@ Give a simple 'true' or 'false' answer.
 
 
     return "true" in response.choices[0].message.content.lower()
+
 
 
 
