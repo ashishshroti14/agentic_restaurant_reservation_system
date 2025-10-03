@@ -944,10 +944,17 @@ COMMON EXAMPLES:
             print(completion.choices)
             print(f"LLM response: {response_text}")
 
-            if not response_text or response_text.isspace():
+            # Handle None response
+            if response_text is None or (response_text and response_text.isspace()) or response_text == "":
                 # If the response is empty, we can't proceed
                 logger.warning("Received empty response from LLM")
                 empty_response_count += 1
+
+                if empty_response_count >= max_empty_responses:
+                    logger.error(f"Received {max_empty_responses} empty responses, stopping")
+                    final_response = "I apologize, but I'm having trouble generating a response. Please try again."
+                    break
+
                 continue
 
 
@@ -1123,7 +1130,6 @@ Give a simple 'true' or 'false' answer.
 
 
     return "true" in response.choices[0].message.content.lower()
-
 
 
 
