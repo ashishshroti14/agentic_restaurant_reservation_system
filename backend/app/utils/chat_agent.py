@@ -227,13 +227,14 @@ def detect_agent(message: str, session: Optional[ChatSession] = None) -> str:
         completion = client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=[
-                {"role": "system", "content": "You are an agent classification system for a restaurant reservation platform. Only respond with the exact agent name."},
+                {"role": "system", "content": "You are an agent classification system for a restaurant reservation platform. Only respond with the exact agent name. Always choose one of the provided agents."},
                 {"role": "user", "content": agent_prompt}
             ],
             temperature=0.1,
-            max_tokens=20
+            # max_tokens=200
         )
         execution_time = time.time() - start_time
+        print(completion.choices, "aaaaaaaaaaaaaaaaaaa")
         
         # Extract and normalize agent name
         agent = completion.choices[0].message.content.strip().lower()
@@ -933,7 +934,7 @@ COMMON EXAMPLES:
                 model=DEFAULT_MODEL,
                 messages=messages,
                 temperature=0.1,
-                max_tokens=1000
+                # max_tokens=1000
             )
             execution_time = time.time() - start_time
             
@@ -1031,7 +1032,7 @@ COMMON EXAMPLES:
                 model=DEFAULT_MODEL,
                 messages=messages,
                 temperature=0.1,
-                max_tokens=1000
+                # max_tokens=1000
             )
             final_response = completion.choices[0].message.content
         
