@@ -17,12 +17,9 @@ from .datetime_utils import standardize_object_for_json, json_dumps, to_standard
 load_dotenv()
 
 # OpenRouter API configuration
-# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-# OPENROUTER_URL = "https://openrouter.ai/api/v1"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_URL = "https://openrouter.ai/api/v1"
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL")
-BASE_URL=os.getenv("BASE_URL")
-API_KEY=os.getenv("API_KEY")
-                   
 
 
 # Session storage (replace with database in production)
@@ -104,9 +101,6 @@ def standardize_phone_number(phone: str) -> str:
     """
     if not phone:
         return phone
-
-    if isinstance(phone, int):
-        phone = str(phone)
         
     # Keep the + sign if it exists at the beginning
     has_plus = phone.startswith('+')
@@ -170,8 +164,8 @@ def detect_agent(message: str, session: Optional[ChatSession] = None) -> str:
     # Use LLM for agent classification with updated agent categories
     try:
         client = OpenAI(
-            base_url=BASE_URL,
-            api_key=API_KEY,
+            base_url=OPENROUTER_URL,
+            api_key=OPENROUTER_API_KEY,
         )
         
         # Create a comprehensive prompt for agent classification with full conversation context
@@ -288,15 +282,15 @@ def extract_parameters(message: str, agent: str, session: Optional[ChatSession] 
     # Convert agent to intent for parameter extraction (for backward compatibility)
     intent = AGENT_TO_INTENT_MAP.get(agent, "general_inquiry")
     
-    if not API_KEY:
+    if not OPENROUTER_API_KEY:
         # Return empty params if no API key is available
         return {}
     
     try:
         # Initialize OpenAI client here before using it
         client = OpenAI(
-            base_url=BASE_URL,
-            api_key=API_KEY,
+            base_url=OPENROUTER_URL,
+            api_key=OPENROUTER_API_KEY,
         )
         
         # Extract conversation history and system context if session is provided
@@ -741,7 +735,7 @@ Output: {result}
     
 def generate_response(session: ChatSession, user_message: str, restaurant_id: Optional[str] = None) -> Tuple[str, Optional[List[str]], str]:
     """Generate a response using the model from OpenRouter and return the detected agent"""
-    if not API_KEY:
+    if not OPENROUTER_API_KEY:
         # If no API key, use rule-based responses
         agent = detect_agent(user_message)
         params = extract_parameters(user_message, agent, session)
@@ -915,9 +909,9 @@ COMMON EXAMPLES:
     
     # Initialize client
     client = OpenAI(
-            base_url=BASE_URL,
-            api_key=API_KEY,
-        )
+        base_url=OPENROUTER_URL,
+        api_key=OPENROUTER_API_KEY,
+    )
     
     # Process the conversation with potential multiple tool calls
     max_tool_calls = 5  # Limit the number of sequential tool calls to prevent infinite loops
@@ -947,19 +941,14 @@ COMMON EXAMPLES:
             print(completion.choices)
             print(f"LLM response: {response_text}")
 
-            # Handle None response
-            if response_text is None or (response_text and response_text.isspace()) or response_text == "":
+            if response_text == "" or response_text.isspace():
                 # If the response is empty, we can't proceed
                 logger.warning("Received empty response from LLM")
                 empty_response_count += 1
-
-                if empty_response_count >= max_empty_responses:
-                    logger.error(f"Received {max_empty_responses} empty responses, stopping")
-                    final_response = "I apologize, but I'm having trouble generating a response. Please try again."
-                    break
-
+                # if empty_response_count >= max_empty_responses:
+                #     logger.error("Max empty responses reached, stopping execution")
+                #     break
                 continue
-
 
             # if check_if_llm_has_asked_to_wait(response_text= response_text):
             #     # If the LLM asks to wait, we should pause and not log this as an interaction
@@ -1119,9 +1108,9 @@ Give a simple 'true' or 'false' answer.
     """
 
     client = OpenAI(
-            base_url=BASE_URL,
-            api_key=API_KEY,
-        )
+        base_url=OPENROUTER_URL,
+        api_key=OPENROUTER_API_KEY,
+    )
 
 
     response = client.chat.completions.create(
@@ -1133,6 +1122,3 @@ Give a simple 'true' or 'false' answer.
 
 
     return "true" in response.choices[0].message.content.lower()
-
-
-
