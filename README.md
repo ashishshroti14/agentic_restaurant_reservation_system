@@ -24,7 +24,7 @@ FoodieSpot is an intelligent restaurant reservation system powered by purpose-bu
 
 ### LLM Integration
 
-This project uses **Microsoft Phi-4 (14B parameter model)** via OpenRouter API, demonstrating that sophisticated agentic systems can be built with mid-size models when properly engineered.
+This project uses **Meta Llama 4 Scout** via OpenRouter API, demonstrating that sophisticated agentic systems can be built with mid-size models when properly engineered.
 
 ### Agent System (Built From Scratch)
 
@@ -249,3 +249,4 @@ FoodieSpot addresses critical challenges in restaurant reservation management:
 - FastAPI for the efficient backend framework
 - Google Cloud Platform for hosting infrastructure
 - Created as part of a technical implementation challenge for Sarvam AI
+
