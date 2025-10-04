@@ -26,7 +26,7 @@ DEFAULT_MODEL = os.getenv("DEFAULT_MODEL")
 sessions: Dict[str, ChatSession] = {}  # This in-memory storage is problematic for persistence
 
 # System prompt for the restaurant assistant
-SYSTEM_PROMPT = """Act as a restaurant assistant. Answer concisely based on the user's queries.
+SYSTEM_PROMPT = """You are an intelligent restaurant assistant. Answer concisely based on the user's queries.
  an intelligent restaurant assistant for FoodieSpot, a restaurant reservation platform. 
 Your name is FoodieBot. Your goal is to help users find restaurants and make reservations.
 
@@ -56,6 +56,7 @@ CRITICAL TOOL USAGE INSTRUCTIONS:
 8. LOOK AT THE TOOL OUTPUTS CAREFULLY - they will provide the exact information you need to respond. 
 9. You wont ever need to ask the user to wait for a response - the tools will return results immediately, determine if the tool ran successfully or not, and then respond to the user accordingly.
 10. NEVER EVER GIVE AN EMPTY RESPONSE - always provide a meaningful answer based on the tool results.
+11. DO NOT ASK THE USER TO WAIT - you can respond immediately based on tool results.
 
 IMPORTANT: Always include relevant IDs in your responses to help with workflow continuity.
 - When listing restaurants, include their IDs.
@@ -232,7 +233,7 @@ def detect_agent(message: str, session: Optional[ChatSession] = None) -> str:
                 {"role": "system", "content": "You are an agent classification system for a restaurant reservation platform. Only respond with the exact agent name. Always choose one of the provided agents."},
                 {"role": "user", "content": agent_prompt}
             ],
-            # temperature=0.1,
+             temperature=0,
             # max_tokens=200
         )
         execution_time = time.time() - start_time
@@ -429,7 +430,7 @@ def extract_parameters(message: str, agent: str, session: Optional[ChatSession] 
                 {"role": "system", "content": "You are a parameter extraction system. Only respond with the requested JSON format."},
                 {"role": "user", "content": extraction_prompt}
             ],
-            # temperature=0.1,
+             temperature=0,
         )
         execution_time = time.time() - start_time
         
@@ -935,7 +936,7 @@ COMMON EXAMPLES:
             completion = client.chat.completions.create(
                 model=DEFAULT_MODEL,
                 messages=messages,
-                # temperature=0.1,
+                 temperature=0,
                 # max_tokens=1000
             )
             execution_time = time.time() - start_time
@@ -1032,7 +1033,7 @@ COMMON EXAMPLES:
             completion = client.chat.completions.create(
                 model=DEFAULT_MODEL,
                 messages=messages,
-                # temperature=0.1,
+                 temperature=0,
                 # max_tokens=1000
             )
             final_response = completion.choices[0].message.content
