@@ -26,7 +26,8 @@ DEFAULT_MODEL = os.getenv("DEFAULT_MODEL")
 sessions: Dict[str, ChatSession] = {}  # This in-memory storage is problematic for persistence
 
 # System prompt for the restaurant assistant
-SYSTEM_PROMPT = """You are an intelligent restaurant assistant for FoodieSpot, a restaurant reservation platform. 
+SYSTEM_PROMPT = """Act as a restaurant assistant. Answer concisely based on the user's queries.
+ an intelligent restaurant assistant for FoodieSpot, a restaurant reservation platform. 
 Your name is FoodieBot. Your goal is to help users find restaurants and make reservations.
 
 {user_context}
@@ -72,6 +73,7 @@ CRITICAL ANTI-HALLUCINATION INSTRUCTIONS:
 5. If you're unsure about a restaurant's existence, tell the user "I don't have information about that restaurant in our database."
 6. ALL restaurant information MUST come from database tools, never from your training data.
 7. When in doubt, tell the user you need to search the database rather than providing potentially made-up information.
+8. No email is going to be sent to the user.
 
 Do not reveal any information about any user with a different phone number.
 
@@ -230,7 +232,7 @@ def detect_agent(message: str, session: Optional[ChatSession] = None) -> str:
                 {"role": "system", "content": "You are an agent classification system for a restaurant reservation platform. Only respond with the exact agent name. Always choose one of the provided agents."},
                 {"role": "user", "content": agent_prompt}
             ],
-            temperature=0.1,
+            # temperature=0.1,
             # max_tokens=200
         )
         execution_time = time.time() - start_time
@@ -427,7 +429,7 @@ def extract_parameters(message: str, agent: str, session: Optional[ChatSession] 
                 {"role": "system", "content": "You are a parameter extraction system. Only respond with the requested JSON format."},
                 {"role": "user", "content": extraction_prompt}
             ],
-            temperature=0.1,
+            # temperature=0.1,
         )
         execution_time = time.time() - start_time
         
@@ -767,7 +769,6 @@ IMPORTANT INSTRUCTIONS ABOUT RESTAURANT IDENTITY:
 2. If the user asks about a restaurant, always refer to the ID provided in the system prompt.
 3. If the user asks about a restaurant not in the system prompt, tell them: "I don't have information about that restaurant in our database."
 4. Return the restaurant ID in the format: "Restaurant ID: <restaurant_id>".
-5. NEVER RETURN AN EMPTY RESPONSE.
 
 IMPORTANT INSTRUCTIONS ABOUT USER IDENTITY:
 1. You HAVE the user's phone number: {std_phone}
@@ -898,13 +899,14 @@ COMMON EXAMPLES:
     [TOOL:retrieve_reservation(identifier_type="phone", identifier_value="1234567890", date="2023-06-01T19:00:00")]
 
     - For cancel_reservation:
-    [TOOL:cancel_reservation(reservation_id="12345", phone_number="1234567890")]
+    [TOOL:cancel_reservation(reservation_id="12345")]
 
     7. If you need to use a tool, generate the tool call and stop - DO NOT continue with additional text.
     8. If you need to provide a final response, do so based on the real tool results.
     9. If you need to use another tool, just generate the tool call: [TOOL:tool_name(params)]
+    10. Only call the tools with the parameters that have been talked about in the function definitions above.
+    11. NEVER call a tool with parameters that have not been explicitly mentioned in the conversation
 
-    NEVER RETURN AN EMPTY RESPONSE.
     """
     messages.append({"role": "system", "content": tool_usage_instructions})
     
@@ -933,7 +935,7 @@ COMMON EXAMPLES:
             completion = client.chat.completions.create(
                 model=DEFAULT_MODEL,
                 messages=messages,
-                temperature=0.1,
+                # temperature=0.1,
                 # max_tokens=1000
             )
             execution_time = time.time() - start_time
@@ -946,9 +948,9 @@ COMMON EXAMPLES:
                 # If the response is empty, we can't proceed
                 logger.warning("Received empty response from LLM")
                 empty_response_count += 1
-                # if empty_response_count >= max_empty_responses:
-                #     logger.error("Max empty responses reached, stopping execution")
-                #     break
+                if empty_response_count >= max_empty_responses:
+                    logger.error("Max empty responses reached, stopping execution")
+                    break
                 continue
 
             # if check_if_llm_has_asked_to_wait(response_text= response_text):
@@ -1011,7 +1013,6 @@ COMMON EXAMPLES:
                 2. If you need another tool, just generate the tool call: [TOOL:tool_name(params)]
                 3. DO NOT generate fake [DATA] sections or simulate tool responses
                 4. If no further tool calls are needed, provide a final response to the user based solely on the real tool results
-                5. NEVER RETURN AN EMPTY RESPONSE.
                 6. The things are not updated unless you explicitly call a tool. With out a tool call result confirmation, do not assume anything.
                 """
             })
@@ -1031,7 +1032,7 @@ COMMON EXAMPLES:
             completion = client.chat.completions.create(
                 model=DEFAULT_MODEL,
                 messages=messages,
-                temperature=0.1,
+                # temperature=0.1,
                 # max_tokens=1000
             )
             final_response = completion.choices[0].message.content

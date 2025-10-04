@@ -676,160 +676,48 @@ class AgentTools:
             })
 
     @staticmethod
-    def cancel_reservation(identifier_type: str, identifier_value: str, reservation_date: Optional[str] = None) -> str:
+    def cancel_reservation(reservation_id: str) -> str:
         """
-        Cancel a reservation based on customer information and optionally reservation date.
-        
+        Cancel a reservation based on its ID.
+
         Args:
-            identifier_type: Type of identifier ('name', 'email', 'phone', or 'id')
-            identifier_value: Value of the identifier
-            reservation_date: Optional date string to filter reservations
+            reservation_id: ID of the reservation to cancel
             
         Returns:
             JSON string with the cancellation result
         """
         try:
-            logger.info(f"CANCEL: Starting cancellation with {identifier_type}={identifier_value}, date={reservation_date}")
-            
-            # Map identifier types to database field names
-            field_mapping = {
-                'name': 'customer_name',
-                'email': 'customer_email',
-                'phone': 'customer_phone',
-                'id': 'id',
-                'reservation_id': 'id'
-            }
-            
-            # Validate identifier type
-            if identifier_type not in field_mapping:
+            logger.info(f"CANCEL: Starting cancellation with reservation_id={reservation_id}")
+
+            reservation = get_reservation(reservation_id)
+            if not reservation:
+                return json.dumps({
+                    "status": "not_found",
+                    "message": f"No reservation found with ID: {reservation_id}"
+                })
+
+            # Update status to cancelled
+            reservation['status'] = 'cancelled'
+            result = update_reservation(reservation)
+
+            if result:
+                return json.dumps({
+                    "status": "success",
+                    "message": f"Reservation {reservation_id} has been cancelled",
+                    "reservation": result
+                })
+            else:
                 return json.dumps({
                     "status": "error",
-                    "message": f"Invalid identifier type: {identifier_type}. Must be one of: name, email, phone, id, reservation_id."
+                    "message": f"Failed to cancel reservation {reservation_id}"
                 })
-            
-            # Get the correct field name for the query
-            field_name = field_mapping[identifier_type]
-            
-            try:
-                # If identifier is a reservation ID, directly update that reservation
-                if identifier_type in ['id', 'reservation_id']:
-                    reservation = get_reservation(identifier_value)
-                    if not reservation:
-                        return json.dumps({
-                            "status": "not_found",
-                            "message": f"No reservation found with ID: {identifier_value}"
-                        })
-                    
-                    # Update status to cancelled
-                    reservation['status'] = 'cancelled'
-                    result = update_reservation(reservation)
-                    
-                    if result:
-                        return json.dumps({
-                            "status": "success",
-                            "message": f"Reservation {identifier_value} has been cancelled",
-                            "reservation": result
-                        })
-                    else:
-                        return json.dumps({
-                            "status": "error",
-                            "message": f"Failed to cancel reservation {identifier_value}"
-                        })
-                else:
-                    # Get all reservations for the customer
-                    reservations = get_reservations(**{field_name: identifier_value})
-                    
-                    if not reservations:
-                        return json.dumps({
-                            "status": "not_found",
-                            "message": f"No reservations found for {identifier_type}: {identifier_value}"
-                        })
-                    
-                    # If date is provided, filter by date
-                    if reservation_date:
-                        try:
-                            # Parse date string to date object for comparison
-                            if isinstance(reservation_date, str):
-                                # Handle various date formats
-                                date_formats = [
-                                    "%Y-%m-%d",  # ISO format
-                                    "%m/%d/%Y",  # US format
-                                    "%d/%m/%Y",  # UK format
-                                    "%B %d, %Y"  # Month name format
-                                ]
-                                
-                                parsed_date = None
-                                for fmt in date_formats:
-                                    try:
-                                        parsed_date = datetime.strptime(reservation_date, fmt).date()
-                                        break
-                                    except ValueError:
-                                        continue
-                                
-                                if not parsed_date:
-                                    # Try to handle "today", "tomorrow", etc.
-                                    if reservation_date.lower() == "today":
-                                        parsed_date = datetime.now().date()
-                                    elif reservation_date.lower() == "tomorrow":
-                                        parsed_date = (datetime.now() + timedelta(days=1)).date()
-                                    else:
-                                        raise ValueError(f"Unrecognized date format: {reservation_date}")
-                            else:
-                                parsed_date = reservation_date.date() if hasattr(reservation_date, 'date') else reservation_date
-                            
-                            # Filter reservations by date
-                            filtered_reservations = []
-                            for res in reservations:
-                                if 'reservation_time' in res and res['reservation_time']:
-                                    res_date = res['reservation_time'].date() if hasattr(res['reservation_time'], 'date') else res['reservation_time']
-                                    if res_date == parsed_date:
-                                        filtered_reservations.append(res)
-                            
-                            reservations = filtered_reservations
-                            
-                        except Exception as date_error:
-                            return json.dumps({
-                                "status": "error",
-                                "message": f"Error parsing reservation date: {str(date_error)}"
-                            })
-                    
-                    if not reservations:
-                        return json.dumps({
-                            "status": "not_found",
-                            "message": f"No reservations found for {identifier_type}: {identifier_value} on date {reservation_date}"
-                        })
-                    
-                    # If multiple reservations exist, return them all and ask for clarification
-                    if len(reservations) > 1:
-                        return json.dumps({
-                            "status": "multiple_found",
-                            "message": f"Multiple reservations found for {identifier_type}: {identifier_value}. Please specify which reservation to cancel.",
-                            "reservations": reservations
-                        })
-                    
-                    # Cancel the single reservation found
-                    reservation = reservations[0]
-                    reservation['status'] = 'cancelled'
-                    result = update_reservation(reservation)
-                    
-                    if result:
-                        return json.dumps({
-                            "status": "success",
-                            "message": f"Reservation {reservation.get('id', 'unknown')} has been cancelled",
-                            "reservation": result
-                        })
-                    else:
-                        return json.dumps({
-                            "status": "error",
-                            "message": f"Failed to cancel reservation {reservation.get('id', 'unknown')}"
-                        })
-                
-            except Exception as db_error:
-                logger.error(f"CANCEL: Database error: {str(db_error)}")
-                return json.dumps({
-                    "status": "error",
-                    "message": f"Database error: {str(db_error)}"
-                })
+        except Exception as e:
+            logger.error(f"CANCEL: Error cancelling reservation: {str(e)}", exc_info=True)
+            return json.dumps({
+                "status": "error",
+                "message": f"Error cancelling reservation: {str(e)}"
+            })
+               
             
         except Exception as e:
             logger.error(f"CANCEL: General error: {str(e)}")
@@ -924,9 +812,7 @@ AVAILABLE_TOOLS = {
         "cancel_reservation",
         "Cancel a reservation based on customer information and optionally reservation date",
         {
-            "identifier_type": "Type of identifier ('name', 'email', 'phone', or 'id')",
-            "identifier_value": "Value of the identifier",
-            "reservation_date": "Optional date string to filter reservations"
+            "reservation_id": "String ID of the reservation to modify",
         },
         "Returns a JSON string with the cancellation result"
     )
