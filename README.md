@@ -244,9 +244,9 @@ FoodieSpot addresses critical challenges in restaurant reservation management:
 - Voice interface for hands-free operation
 
 ## 🙏 Acknowledgements
-- OpenRouter for providing access to Phi-4 and other models
+- OpenRouter for providing access to Llama 4 Scout and other models
 - Streamlit for the powerful UI framework
 - FastAPI for the efficient backend framework
 - Google Cloud Platform for hosting infrastructure
-- Created as part of a technical implementation challenge for Sarvam AI
+
 
